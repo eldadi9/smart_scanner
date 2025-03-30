@@ -70,3 +70,141 @@
             </select>
         </div>
     </div>
+
+    <div class="row" id="amazon-results"></div>
+</div>
+
+<script>
+async function getExchangeRateUSDToILS() {
+    try {
+        const res = await fetch('https://api.exchangerate-api.com/v4/latest/USD');
+        const data = await res.json();
+        return data.rates.ILS || 3.5;
+    } catch (e) {
+        return 3.5;
+    }
+}
+
+async function search() {
+    const query = document.getElementById('searchInput').value;
+    if (!query) return;
+
+    document.getElementById('loading-spinner').style.display = 'block';
+    document.getElementById('amazon-results').innerHTML = '';
+
+    try {
+        const response = await fetch(`/search?query=${encodeURIComponent(query)}`);
+        const data = await response.json();
+        await new Promise(resolve => setTimeout(resolve, 300));
+        updateResults('amazon-results', data.amazon);
+    } catch (e) {
+        document.getElementById('amazon-results').innerHTML = '<div class="col-12 text-danger">שגיאה בטעינת הנתונים</div>';
+    }
+
+    document.getElementById('loading-spinner').style.display = 'none';
+}
+
+async function updateResults(divId, items) {
+    const container = document.getElementById(divId);
+    container.innerHTML = '';
+
+    const minPrice = parseFloat(document.getElementById('minPrice').value) || 0;
+    const maxPrice = parseFloat(document.getElementById('maxPrice').value) || Infinity;
+    const minRating = parseFloat(document.getElementById('minRating').value) || 0;
+
+    const exchangeRate = await getExchangeRateUSDToILS();
+
+    const filteredItems = items.filter(item => {
+        const price = item.price?.value;
+        const rating = item.rating || 0;
+        return (
+            (!price || (price >= minPrice && price <= maxPrice)) &&
+            (rating >= minRating)
+        );
+    });
+
+    if (filteredItems.length === 0) {
+        container.innerHTML = '<div class="col-12 text-center text-muted">לא נמצאו תוצאות בסינון</div>';
+        return;
+    }
+
+    filteredItems.forEach(item => {
+        const title = item.title || 'ללא שם';
+        const price = item.price?.value || null;
+        const currency = item.price?.currency || 'USD';
+        const url = item.link || '#';
+        const img = item.image || 'https://via.placeholder.com/300x200';
+        const rating = item.rating || null;
+        const isDeal = item.was_price && item.price?.value && item.was_price > item.price.value;
+        const coupon = item.coupon || '';
+        const wasPriceText = isDeal ? `<p class="card-text text-muted"><del>$${item.was_price}</del></p>` : '';
+        const discountLabel = isDeal ? `<span class="badge badge-success position-absolute m-2">מבצע!</span>` : '';
+        const couponText = coupon ? `<p class="card-text text-success">קופון: ${coupon}</p>` : '';
+        const priceText = price !== null ? `מחיר: $${price} / ₪${(price * exchangeRate).toFixed(2)}` : 'לא זמין';
+        const ratingText = rating ? `⭐ דירוג: ${rating}` : '';
+
+        const col = document.createElement('div');
+        col.className = 'col-md-4';
+        col.innerHTML = `
+            <div class="card mb-4 shadow-sm h-100 position-relative">
+                ${discountLabel}
+                <img src="${img}" class="card-img-top" alt="${title}" onerror="this.src='https://via.placeholder.com/300x200?text=No+Image';">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">${title}</h5>
+                    ${wasPriceText}
+                    <p class="card-text">${priceText}</p>
+                    ${couponText}
+                    ${ratingText ? `<p class="card-text">${ratingText}</p>` : ''}
+                    <a href="${url}" target="_blank" class="btn btn-primary mt-auto">לרכישה</a>
+                </div>
+            </div>
+        `;
+        container.appendChild(col);
+    });
+}
+
+let currentLang = 'he';
+
+function toggleLanguage() {
+    currentLang = currentLang === 'he' ? 'en' : 'he';
+    document.documentElement.lang = currentLang;
+
+    document.querySelector('h1').textContent = currentLang === 'he' ? '🔎 חיפוש מוצרים ב-Amazon' : '🔎 Amazon Product Search';
+    document.getElementById('searchInput').placeholder = currentLang === 'he' ? 'הכנס מוצר לחיפוש' : 'Enter product to search';
+    document.getElementById('searchBtn').textContent = currentLang === 'he' ? 'חפש' : 'Search';
+    document.getElementById('scanBtn').textContent = currentLang === 'he' ? '📷 סרוק ברקוד' : '📷 Scan Barcode';
+}
+</script>
+
+<!-- ברקוד -->
+<script src="https://unpkg.com/html5-qrcode"></script>
+<script>
+function scanBarcode() {
+    const existing = document.getElementById("scanner");
+    if (existing) existing.remove();
+
+    const scannerDiv = document.createElement('div');
+    scannerDiv.id = "scanner";
+    document.body.appendChild(scannerDiv);
+
+    const html5QrCode = new Html5Qrcode("scanner");
+    Html5Qrcode.getCameras().then(cameras => {
+        if (cameras && cameras.length) {
+            html5QrCode.start(
+                cameras[0].id,
+                { fps: 10, qrbox: 250 },
+                code => {
+                    html5QrCode.stop().then(() => {
+                        document.getElementById('scanner').remove();
+                        document.getElementById('searchInput').value = code;
+                        search();
+                    });
+                },
+                error => {}
+            );
+        }
+    });
+}
+</script>
+</body>
+</html>
