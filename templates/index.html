@@ -1,328 +1,264 @@
 <!DOCTYPE html>
 <html lang="he">
 <head>
-    <meta charset="UTF-8">
-    <title>חיפוש מוצרים - Amazon בלבד</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body {
-            font-family: Arial;
-            direction: rtl;
-            text-align: right;
-            padding: 20px;
-            background-color: #f8f9fa;
-        }
-        #scanner {
-            width: 100%;<button class="btn btn-outline-secondary mb-3" onclick="openSidebar()">☰ סנן תצוגה</button>
-            max-width: 400px;
-            margin: 20px auto;
-        }
-        #loading-spinner {
-            text-align: center;
-            margin-top: 20px;
-        }
-        .badge-success {
-            background-color: #28a745;
-            font-size: 0.9rem;
-            padding: 0.4em 0.6em;
-            border-radius: 0.5em;
-        }
-
-        .sidebar {
-  position: fixed;
-  top: 0;
-  right: -300px;
-  width: 280px;
-  height: 100%;
-  background: #f8f9fa;
-  box-shadow: -2px 0 5px rgba(0,0,0,0.1);
-  transition: right 0.3s ease;
-  z-index: 9999;
-  overflow-y: auto;
-}
-.sidebar.open {
-  right: 0;
-}
-
-    </style>
+  <meta charset="UTF-8">
+  <title>חיפוש מוצרים - Amazon בלבד</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      font-family: Arial;
+      direction: rtl;
+      text-align: right;
+      padding: 20px;
+      background-color: #f8f9fa;
+    }
+    .sidebar {
+      position: fixed;
+      top: 0;
+      right: -300px;
+      width: 280px;
+      height: 100%;
+      background: #f8f9fa;
+      box-shadow: -2px 0 5px rgba(0,0,0,0.1);
+      transition: right 0.3s ease;
+      z-index: 9999;
+      overflow-y: auto;
+    }
+    .sidebar.open {
+      right: 0;
+    }
+    #scanner {
+      width: 100%;
+      max-width: 400px;
+      margin: 20px auto;
+    }
+    #loading-spinner {
+      text-align: center;
+      margin-top: 20px;
+    }
+    .badge-success {
+      background-color: #28a745;
+      font-size: 0.9rem;
+      padding: 0.4em 0.6em;
+      border-radius: 0.5em;
+    }
+  </style>
 </head>
 <body>
-<!-- סיידבר נפתח מימין -->
-<div id="sidebar" class="sidebar">
-    <h5 class="p-3 border-bottom">🎛 הגדרות תצוגה וסינון</h5>
-    <form class="p-3" id="filterForm">
-        <div class="form-check">
-            <input class="form-check-input" type="checkbox" id="filterPrice">
-            <label class="form-check-label" for="filterPrice">סינון לפי מחיר</label>
-        </div>
-        <div class="form-check">
-            <input class="form-check-input" type="checkbox" id="filterRating">
-            <label class="form-check-label" for="filterRating">סינון לפי דירוג</label>
-        </div>
-        <div class="form-check">
-            <input class="form-check-input" type="checkbox" id="showDeals">
-            <label class="form-check-label" for="showDeals">רק מבצעים</label>
-        </div>
-        <div class="form-check">
-            <input class="form-check-input" type="checkbox" id="translateHebrew" checked>
-            <label class="form-check-label" for="translateHebrew">שפה: עברית</label>
-        </div>
-        <div class="form-check">
-            <input class="form-check-input" type="checkbox" id="viewModeGrid" checked>
-            <label class="form-check-label" for="viewModeGrid">תצוגת Grid</label>
-        </div>
-    </form>
-    <button class="btn btn-secondary m-3" onclick="closeSidebar()">סגור</button>
-</div>
 
-<div class="container">
-    <!-- סיידבר נפתח מימין -->
-<div id="sidebar" class="sidebar">
-    <h5 class="p-3 border-bottom">🎛 הגדרות תצוגה וסינון</h5>
-    <form class="p-3" id="filterForm">
-        <div class="form-check">
-            <input class="form-check-input" type="checkbox" id="filterPrice">
-            <label class="form-check-label" for="filterPrice">סינון לפי מחיר</label>
-        </div>
-        <div class="form-check">
-            <input class="form-check-input" type="checkbox" id="filterRating">
-            <label class="form-check-label" for="filterRating">סינון לפי דירוג</label>
-        </div>
-        <div class="form-check">
-            <input class="form-check-input" type="checkbox" id="showDeals">
-            <label class="form-check-label" for="showDeals">רק מבצעים</label>
-        </div>
-        <div class="form-check">
-            <input class="form-check-input" type="checkbox" id="translateHebrew" checked>
-            <label class="form-check-label" for="translateHebrew">שפה: עברית</label>
-        </div>
-        <div class="form-check">
-            <input class="form-check-input" type="checkbox" id="viewModeGrid" checked>
-            <label class="form-check-label" for="viewModeGrid">תצוגת Grid</label>
-        </div>
-    </form>
-    <button class="btn btn-secondary m-3" onclick="closeSidebar()">סגור</button>
-</div>
-
-    <h1 class="mb-4">🔎 חיפוש מוצרים ב-Amazon</h1>
-    <button className="btn btn-outline-secondary mb-3" onClick="openSidebar()">☰ סנן תצוגה</button>
-    <h1 class="mb-4">🔎 חיפוש מוצרים ב-Amazon</h1>
-
-
-    <div class="text-left mb-2">
-        <button class="btn btn-sm btn-outline-secondary" onclick="toggleLanguage()">🌐 שנה שפה</button>
+<!-- סיידבר נפתח -->
+<<div id="sidebar" class="sidebar">
+  <h5 class="p-3 border-bottom">🎛 הגדרות תצוגה וסינון</h5>
+  <form class="p-3" id="filterForm">
+    <div class="form-group">
+      <label for="filterPrice">סינון לפי מחיר</label>
+      <select class="form-control" id="filterPrice">
+        <option value="all">הכל</option>
+        <option value="low">מתחת ל־$20</option>
+        <option value="mid">$20-$50</option>
+        <option value="high">מעל $50</option>
+      </select>
     </div>
 
     <div class="form-group">
-        <input type="text" class="form-control" id="searchInput" placeholder="הכנס מוצר לחיפוש">
-        <button class="btn btn-primary mt-2" id="searchBtn" onclick="search()">חפש</button>
-        <button class="btn btn-secondary mt-2" id="scanBtn" onclick="scanBarcode()">📷 סרוק ברקוד</button>
+      <label for="filterRating">סינון לפי דירוג</label>
+      <select class="form-control" id="filterRating">
+        <option value="0">ללא סינון</option>
+        <option value="3">3+</option>
+        <option value="4">4+</option>
+        <option value="4.5">4.5+</option>
+      </select>
     </div>
 
-    <div id="loading-spinner" class="text-center text-muted" style="display: none;">
-        <div class="spinner-border" role="status"></div>
-        <p>טוען תוצאות...</p>
+    <div class="form-group form-check">
+      <input class="form-check-input" type="checkbox" id="showDeals">
+      <label class="form-check-label" for="showDeals">רק מבצעים</label>
     </div>
 
-    <div class="row mb-2">
-        <div class="col-md-3">
-            <label>מחיר מינימלי ($)</label>
-            <input type="number" class="form-control" id="minPrice" min="0" placeholder="0">
-        </div>
-        <div class="col-md-3">
-            <label>מחיר מקסימלי ($)</label>
-            <input type="number" class="form-control" id="maxPrice" min="0" placeholder="ללא הגבלה">
-        </div>
-        <div class="col-md-3">
-            <label>דירוג מינימלי ⭐</label>
-            <select class="form-control" id="minRating">
-                <option value="0">ללא סינון</option>
-                <option value="1">1+</option>
-                <option value="2">2+</option>
-                <option value="3">3+</option>
-                <option value="4">4+</option>
-                <option value="4.5">4.5+</option>
-            </select>
-        </div>
+    <div class="form-group form-check">
+      <input class="form-check-input" type="checkbox" id="translateHebrew" checked>
+      <label class="form-check-label" for="translateHebrew">שפה: עברית</label>
     </div>
 
-    <div class="row" id="amazon-results"></div>
+    <div class="form-group form-check">
+      <input class="form-check-input" type="checkbox" id="viewModeGrid" checked>
+      <label class="form-check-label" for="viewModeGrid">תצוגת Grid</label>
+    </div>
+
+    <button class="btn btn-secondary mt-3" onclick="closeSidebar()" type="button">סגור</button>
+  </form>
 </div>
 
 
+<div class="container">
+  <h1 class="mb-4">🔎 חיפוש מוצרים ב-Amazon</h1>
 
-<script>
-    async function getExchangeRateUSDToILS() {
-        try {
-            const res = await fetch('https://api.exchangerate-api.com/v4/latest/USD');
-            const data = await res.json();
-            return data.rates.ILS || 3.5;
-        } catch (e) {
-            return 3.5;
-        }
-    }
+  <div class="mb-3">
+    <button class="btn btn-outline-secondary" onclick="openSidebar()">☰ סנן תצוגה</button>
+    <button class="btn btn-sm btn-outline-secondary" onclick="toggleLanguage()">🌐 שנה שפה</button>
+  </div>
 
+  <div class="form-group">
+    <input type="text" class="form-control" id="searchInput" placeholder="הכנס מוצר לחיפוש">
+    <button class="btn btn-primary mt-2" id="searchBtn" onclick="search()">חפש</button>
+    <button class="btn btn-secondary mt-2" id="scanBtn" onclick="scanBarcode()">📷 סרוק ברקוד</button>
+  </div>
 
+  <div id="loading-spinner" style="display: none;">
+    <div class="spinner-border" role="status"></div>
+    <p>טוען תוצאות...</p>
+  </div>
 
-    <div id="sidebar" className="sidebar">
-        <h5 className="p-3 border-bottom">🎛 הגדרות תצוגה וסינון</h5>
-        <form className="p-3" id="filterForm">
-            <div className="form-check">
-                <input className="form-check-input" type="checkbox" id="filterPrice"/>
-                <label className="form-check-label" htmlFor="filterPrice">סינון לפי מחיר</label>
-            </div>
-            <div className="form-check">
-                <input className="form-check-input" type="checkbox" id="filterRating"/>
-                <label className="form-check-label" htmlFor="filterRating">סינון לפי דירוג</label>
-            </div>
-            <div className="form-check">
-                <input className="form-check-input" type="checkbox" id="showDeals"/>
-                <label className="form-check-label" htmlFor="showDeals">רק מבצעים</label>
-            </div>
-            <div className="form-check">
-                <input className="form-check-input" type="checkbox" id="translateHebrew" checked/>
-                <label className="form-check-label" htmlFor="translateHebrew">שפה: עברית</label>
-            </div>
-            <div className="form-check">
-                <input className="form-check-input" type="checkbox" id="viewModeGrid" checked/>
-                <label className="form-check-label" htmlFor="viewModeGrid">תצוגת Grid</label>
-            </div>
-        </form>
-        <button className="btn btn-secondary m-3" onClick="closeSidebar()">סגור</button>
+  <div class="row mb-2">
+    <div class="col-md-3">
+      <label>מחיר מינימלי ($)</label>
+      <input type="number" class="form-control" id="minPrice" min="0" placeholder="0">
     </div>
+    <div class="col-md-3">
+      <label>מחיר מקסימלי ($)</label>
+      <input type="number" class="form-control" id="maxPrice" min="0" placeholder="ללא הגבלה">
+    </div>
+    <div class="col-md-3">
+      <label>דירוג מינימלי ⭐</label>
+      <select class="form-control" id="minRating">
+        <option value="0">ללא סינון</option>
+        <option value="1">1+</option>
+        <option value="2">2+</option>
+        <option value="3">3+</option>
+        <option value="4">4+</option>
+        <option value="4.5">4.5+</option>
+      </select>
+    </div>
+  </div>
 
-
-    async function search() {
-        const query = document.getElementById('searchInput').value;
-        if (!query) return;
-
-        document.getElementById('loading-spinner').style.display = 'block';
-        document.getElementById('amazon-results').innerHTML = '';
-
-        try {
-            const response = await fetch(`/search?query=${encodeURIComponent(query)}`);
-            const data = await response.json();
-            await new Promise(resolve => setTimeout(resolve, 300));
-            updateResults('amazon-results', data.amazon);
-        } catch (e) {
-            document.getElementById('amazon-results').innerHTML = '<div class="col-12 text-danger">שגיאה בטעינת הנתונים</div>';
-        }
-
-        document.getElementById('loading-spinner').style.display = 'none';
-    }
-
-    async function updateResults(divId, items) {
-        const container = document.getElementById(divId);
-        container.innerHTML = '';
-
-        const minPrice = parseFloat(document.getElementById('minPrice').value) || 0;
-        const maxPrice = parseFloat(document.getElementById('maxPrice').value) || Infinity;
-        const minRating = parseFloat(document.getElementById('minRating').value) || 0;
-
-        const exchangeRate = await getExchangeRateUSDToILS();
-
-        const filteredItems = items.filter(item => {
-            const price = item.price?.value;
-            const rating = item.rating || 0;
-            return (
-                (!price || (price >= minPrice && price <= maxPrice)) &&
-                (rating >= minRating)
-            );
-        });
-
-        if (filteredItems.length === 0) {
-            container.innerHTML = '<div class="col-12 text-center text-muted">לא נמצאו תוצאות בסינון</div>';
-            return;
-        }
-
-        filteredItems.forEach(item => {
-            const title = item.title || 'ללא שם';
-            const price = item.price?.value || null;
-            const currency = item.price?.currency || 'USD';
-            const url = item.link || '#';
-            const img = item.image || 'https://via.placeholder.com/300x200';
-            const rating = item.rating || null;
-            const isDeal = item.was_price && item.price?.value && item.was_price > item.price.value;
-            const coupon = item.coupon || '';
-            const wasPriceText = isDeal ? `<p class="card-text text-muted"><del>$${item.was_price}</del></p>` : '';
-            const discountLabel = isDeal ? `<span class="badge badge-success position-absolute m-2">מבצע!</span>` : '';
-            const couponText = coupon ? `<p class="card-text text-success">קופון: ${coupon}</p>` : '';
-            const priceText = price !== null ? `מחיר: $${price} / ₪${(price * exchangeRate).toFixed(2)}` : 'לא זמין';
-            const ratingText = rating ? `⭐ דירוג: ${rating}` : '';
-
-            const col = document.createElement('div');
-            col.className = 'col-md-4';
-            col.innerHTML = `
-            <div class="card mb-4 shadow-sm h-100 position-relative">
-                ${discountLabel}
-                <img src="${img}" class="card-img-top" alt="${title}" onerror="this.src='https://via.placeholder.com/300x200?text=No+Image';">
-                <div class="card-body d-flex flex-column">
-                    <h5 class="card-title">${title}</h5>
-                    ${wasPriceText}
-                    <p class="card-text">${priceText}</p>
-                    ${couponText}
-                    ${ratingText ? `<p class="card-text">${ratingText}</p>` : ''}
-                    <a href="${url}" target="_blank" class="btn btn-primary mt-auto">לרכישה</a>
-                </div>
-            </div>
-        `;
-            container.appendChild(col);
-        });
-    }
-
-    let currentLang = 'he';
-
-    function toggleLanguage() {
-        currentLang = currentLang === 'he' ? 'en' : 'he';
-        document.documentElement.lang = currentLang;
-
-        document.querySelector('h1').textContent = currentLang === 'he' ? '🔎 חיפוש מוצרים ב-Amazon' : '🔎 Amazon Product Search';
-        document.getElementById('searchInput').placeholder = currentLang === 'he' ? 'הכנס מוצר לחיפוש' : 'Enter product to search';
-        document.getElementById('searchBtn').textContent = currentLang === 'he' ? 'חפש' : 'Search';
-        document.getElementById('scanBtn').textContent = currentLang === 'he' ? '📷 סרוק ברקוד' : '📷 Scan Barcode';
-    }
-</script>
+  <div class="row" id="amazon-results"></div>
+</div>
 
 <!-- ברקוד -->
 <script src="https://unpkg.com/html5-qrcode"></script>
+
 <script>
-    function scanBarcode() {
-        const existing = document.getElementById("scanner");
-        if (existing) existing.remove();
+  function openSidebar() {
+    document.getElementById("sidebar").classList.add("open");
+  }
+  function closeSidebar() {
+    document.getElementById("sidebar").classList.remove("open");
+  }
 
-        const scannerDiv = document.createElement('div');
-        scannerDiv.id = "scanner";
-        document.body.appendChild(scannerDiv);
+  function toggleLanguage() {
+    const isHebrew = document.documentElement.lang === 'he';
+    document.documentElement.lang = isHebrew ? 'en' : 'he';
+    document.querySelector('h1').textContent = isHebrew ? '🔎 Amazon Product Search' : '🔎 חיפוש מוצרים ב-Amazon';
+    document.getElementById('searchInput').placeholder = isHebrew ? 'Enter product to search' : 'הכנס מוצר לחיפוש';
+    document.getElementById('searchBtn').textContent = isHebrew ? 'Search' : 'חפש';
+    document.getElementById('scanBtn').textContent = isHebrew ? '📷 Scan Barcode' : '📷 סרוק ברקוד';
+  }
 
-        const html5QrCode = new Html5Qrcode("scanner");
-        Html5Qrcode.getCameras().then(cameras => {
-            if (cameras && cameras.length) {
-                html5QrCode.start(
-                    cameras[0].id,
-                    {fps: 10, qrbox: 250},
-                    code => {
-                        html5QrCode.stop().then(() => {
-                            document.getElementById('scanner').remove();
-                            document.getElementById('searchInput').value = code;
-                            search();
-                        });
-                    },
-                    error => {
-                    }
-                );
-            }
-        });
+  function scanBarcode() {
+    const existing = document.getElementById("scanner");
+    if (existing) existing.remove();
+
+    const scannerDiv = document.createElement('div');
+    scannerDiv.id = "scanner";
+    document.body.appendChild(scannerDiv);
+
+    const html5QrCode = new Html5Qrcode("scanner");
+    Html5Qrcode.getCameras().then(cameras => {
+      if (cameras && cameras.length) {
+        html5QrCode.start(
+          cameras[0].id,
+          { fps: 10, qrbox: 250 },
+          code => {
+            html5QrCode.stop().then(() => {
+              document.getElementById('scanner').remove();
+              document.getElementById('searchInput').value = code;
+              search();
+            });
+          }
+        );
+      }
+    });
+  }
+</script>
+
+<script>
+  async function getExchangeRateUSDToILS() {
+    try {
+      const res = await fetch('https://api.exchangerate-api.com/v4/latest/USD');
+      const data = await res.json();
+      return data.rates.ILS || 3.5;
+    } catch (e) {
+      return 3.5;
+    }
+  }
+
+  async function search() {
+    const query = document.getElementById('searchInput').value;
+    if (!query) return;
+
+    document.getElementById('loading-spinner').style.display = 'block';
+    document.getElementById('amazon-results').innerHTML = '';
+
+    try {
+      const response = await fetch(`/search?query=${encodeURIComponent(query)}`);
+      const data = await response.json();
+      const items = data.amazon || [];
+      const exchangeRate = await getExchangeRateUSDToILS();
+
+      const minPrice = parseFloat(document.getElementById('minPrice').value) || 0;
+      const maxPrice = parseFloat(document.getElementById('maxPrice').value) || Infinity;
+      const minRating = parseFloat(document.getElementById('minRating').value) || 0;
+
+      const filtered = items.filter(item => {
+        const price = item.price?.value || 0;
+        const rating = item.rating || 0;
+        return price >= minPrice && price <= maxPrice && rating >= minRating;
+      });
+
+      if (filtered.length === 0) {
+        document.getElementById('amazon-results').innerHTML = '<div class="col-12 text-center text-muted">לא נמצאו תוצאות</div>';
+        return;
+      }
+
+      filtered.forEach(item => {
+        const title = item.title || 'ללא שם';
+        const price = item.price?.value || 0;
+        const wasPrice = item.was_price || null;
+        const currency = item.price?.currency || 'USD';
+        const rating = item.rating || '';
+        const img = item.image || 'https://via.placeholder.com/300x200';
+        const link = item.link || '#';
+        const discount = wasPrice && price < wasPrice;
+
+        const div = document.createElement('div');
+        div.className = 'col-md-4';
+        div.innerHTML = `
+          <div class="card mb-4 shadow-sm h-100 position-relative">
+            ${discount ? `<span class="badge badge-success position-absolute m-2">מבצע!</span>` : ''}
+            <img src="${img}" class="card-img-top" alt="${title}">
+            <div class="card-body d-flex flex-column">
+              <h5 class="card-title">${title}</h5>
+              ${discount ? `<p class="text-muted"><del>$${wasPrice}</del></p>` : ''}
+              <p class="card-text">מחיר: $${price} / ₪${(price * exchangeRate).toFixed(2)}</p>
+              ${rating ? `<p class="card-text">⭐ ${rating}</p>` : ''}
+              <a href="${link}" target="_blank" class="btn btn-primary mt-auto">לרכישה</a>
+            </div>
+          </div>
+        `;
+        document.getElementById('amazon-results').appendChild(div);
+      });
+
+    } catch (e) {
+      document.getElementById('amazon-results').innerHTML = '<div class="col-12 text-danger">שגיאה בטעינת הנתונים</div>';
     }
 
-    function openSidebar() {
-    document.getElementById("sidebar").classList.add("open");
-}
-
-function closeSidebar() {
-    document.getElementById("sidebar").classList.remove("open");
-}
-
+    document.getElementById('loading-spinner').style.display = 'none';
+  }
 </script>
+
+
+
+
 </body>
 </html>
