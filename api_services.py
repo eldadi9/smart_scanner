@@ -2,13 +2,17 @@ import requests
 
 RAINFOREST_API_KEY = "38479FE55DB942CE93FB21C6BE0D0C3B"
 
-def search_amazon(query):
+def search_amazon(query, shipping=None, delivery_time=None):
     url = "https://api.rainforestapi.com/request"
     params = {
         "api_key": RAINFOREST_API_KEY,
         "type": "search",
         "amazon_domain": "amazon.com",
-        "search_term": query
+        "search_term": query,
+        "filters": {
+            "shipping": shipping,
+            "delivery_time": delivery_time
+        }
     }
 
     response = requests.get(url, params=params)
@@ -18,3 +22,6 @@ def search_amazon(query):
         return response.json().get("search_results", [])
     else:
         return []
+
+
+

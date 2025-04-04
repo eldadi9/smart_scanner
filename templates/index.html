@@ -255,9 +255,77 @@
 
     document.getElementById('loading-spinner').style.display = 'none';
   }
+
 </script>
 
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const resultsContainer = document.getElementById('amazon-results');
 
+  resultsContainer.addEventListener('mouseover', function (event) {
+    // בדוק אם האלמנט שהעכבר עבר מעליו הוא אחד מהכרטיסים
+    const target = event.target.closest('.card');
+    if (!target) return;
+
+    // נקה את החלון הצף הקודם, אם קיים
+    const existingModal = document.querySelector('.modal-popup');
+    if (existingModal) existingModal.remove();
+
+    // יצירת החלון הצף עם פרטי הפריט
+    const modal = document.createElement('div');
+    modal.className = 'modal-popup';
+    modal.style.position = 'absolute';
+    modal.style.top = target.offsetTop + 'px'; // קבע את המיקום העליון להיות בראש הכרטיס
+    modal.style.left = (target.offsetLeft + target.offsetWidth + 10) + 'px'; // הצג מימין לפריט
+    modal.style.backgroundColor = 'white';
+    modal.style.padding = '20px';
+    modal.style.boxShadow = '0 4px 8px rgba(0,0,0,0.1)';
+    modal.innerHTML = target.querySelector('.card-body').innerHTML; // העתק את תוכן הפריט
+
+    resultsContainer.appendChild(modal); // הוסף את החלון הצף לאלמנט התוצאות
+  });
+
+  resultsContainer.addEventListener('mouseout', function (event) {
+    const relatedTarget = event.relatedTarget;
+    if (!relatedTarget || !relatedTarget.closest('.modal-popup') && !relatedTarget.closest('.card')) {
+      const modal = document.querySelector('.modal-popup');
+      if (modal) modal.remove();
+    }
+  });
+});document.addEventListener('DOMContentLoaded', function () {
+  const resultsContainer = document.getElementById('amazon-results');
+
+  resultsContainer.addEventListener('mouseover', function (event) {
+    // מציאת הכרטיס שהעכבר עבר מעליו
+    const target = event.target.closest('.card');
+    if (!target) return;
+
+    // בדיקה אם כבר קיים חלון צף ומחיקתו
+    const existingModal = document.querySelector('.modal-popup');
+    if (existingModal) existingModal.remove();
+
+    // יצירת חלון צף חדש עם פרטי המוצר
+    const modal = document.createElement('div');
+    modal.className = 'modal-popup';
+    modal.style.position = 'absolute';
+    modal.style.left = event.pageX + 'px'; // שימוש במיקום X של העכבר
+    modal.style.top = event.pageY + 'px'; // שימוש במיקום Y של העכבר
+    modal.style.backgroundColor = 'white';
+    modal.style.padding = '10px';
+    modal.style.boxShadow = '0 4px 8px rgba(0,0,0,0.1)';
+    modal.innerHTML = target.querySelector('.card-body').innerHTML;
+
+    document.body.appendChild(modal); // הוספת החלון הצף ל-body של הדף
+  });
+
+  resultsContainer.addEventListener('mouseout', function () {
+    // הסרת החלון הצף כאשר העכבר עוזב את הכרטיס
+    const modal = document.querySelector('.modal-popup');
+    if (modal) modal.remove();
+  });
+});
+
+</script>
 
 
 </body>
